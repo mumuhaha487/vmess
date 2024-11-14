@@ -1,0 +1,168 @@
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: rule
+log-level: info
+unified-delay: true
+global-client-fingerprint: chrome
+external-controller: :9090
+dns:
+  enable: true
+  listen: :53
+  ipv6: true
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver: 
+    - 223.5.5.5
+    - 114.114.114.114
+    - 8.8.8.8
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback:
+    - https://1.0.0.1/dns-query
+    - tls://dns.google
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
+
+proxies:
+- name: CF_V8_vmess.0ha.top_443
+  type: vless
+  server: vmess.0ha.top
+  port: 443
+  uuid: b2255afb-134c-47b6-b0a1-04017eacfe07
+  udp: false
+  tls: true
+  network: ws
+  servername: vless.0ha.top
+  ws-opts:
+    path: "/?ed=2560"
+    headers:
+      Host: vless.0ha.top
+
+- name: CF_V9_myanmar.visa.com_8443
+  type: vless
+  server: myanmar.visa.com
+  port: 8443
+  uuid: b2255afb-134c-47b6-b0a1-04017eacfe07
+  udp: false
+  tls: true
+  network: ws
+  servername: vless.0ha.top
+  ws-opts:
+    path: "/?ed=2560"
+    headers:
+      Host: vless.0ha.top
+
+- name: CF_V10_www.visa.com.tw_2053
+  type: vless
+  server: www.visa.com.tw
+  port: 2053
+  uuid: b2255afb-134c-47b6-b0a1-04017eacfe07
+  udp: false
+  tls: true
+  network: ws
+  servername: vless.0ha.top
+  ws-opts:
+    path: "/?ed=2560"
+    headers:
+      Host: vless.0ha.top
+
+- name: CF_V11_www.visaeurope.ch_2083
+  type: vless
+  server: www.visaeurope.ch
+  port: 2083
+  uuid: b2255afb-134c-47b6-b0a1-04017eacfe07
+  udp: false
+  tls: true
+  network: ws
+  servername: vless.0ha.top
+  ws-opts:
+    path: "/?ed=2560"
+    headers:
+      Host: vless.0ha.top
+
+- name: CF_V12_www.visa.com.br_2087
+  type: vless
+  server: www.visa.com.br
+  port: 2087
+  uuid: b2255afb-134c-47b6-b0a1-04017eacfe07
+  udp: false
+  tls: true
+  network: ws
+  servername: vless.0ha.top
+  ws-opts:
+    path: "/?ed=2560"
+    headers:
+      Host: vless.0ha.top
+- name: 猫猫头-r1bv6bxh
+  server: maomaotou.0ha.top
+  port: 38849
+  type: vmess
+  uuid: 99eff5fd-e954-47a5-86b2-50793698630c
+  alterId: 0
+  cipher: auto
+  tls: false
+  skip-cert-verify: false
+- name: CF_V13_vmess_1.0ha.top_2096
+  type: vless
+  server: vmess_1.0ha.top
+  port: 2096
+  uuid: b2255afb-134c-47b6-b0a1-04017eacfe07
+  udp: false
+  tls: true
+  network: ws
+  servername: vless.0ha.top
+  ws-opts:
+    path: "/?ed=2560"
+    headers:
+      Host: vless.0ha.top
+
+proxy-groups:
+- name: 负载均衡
+  type: load-balance
+  url: http://www.gstatic.com/generate_204
+  interval: 300
+  proxies:
+    - CF_V8_vmess.0ha.top_443
+    - CF_V9_myanmar.visa.com_8443
+    - CF_V10_www.visa.com.tw_2053
+    - CF_V11_www.visaeurope.ch_2083
+    - CF_V12_www.visa.com.br_2087
+    - CF_V13_vmess_1.0ha.top_2096
+    - 猫猫头-r1bv6bxh
+
+- name: 自动选择
+  type: url-test
+  url: http://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 50
+  proxies:
+    - CF_V8_vmess.0ha.top_443
+    - CF_V9_myanmar.visa.com_8443
+    - CF_V10_www.visa.com.tw_2053
+    - CF_V11_www.visaeurope.ch_2083
+    - CF_V12_www.visa.com.br_2087
+    - CF_V13_vmess_1.0ha.top_2096
+    - 猫猫头-r1bv6bxh
+
+- name: 🌍选择代理
+  type: select
+  proxies:
+    - 负载均衡
+    - 自动选择
+    - DIRECT
+    - CF_V8_vmess.0ha.top_443
+    - CF_V9_myanmar.visa.com_8443
+    - CF_V10_www.visa.com.tw_2053
+    - CF_V11_www.visaeurope.ch_2083
+    - CF_V12_www.visa.com.br_2087
+    - CF_V13_vmess_1.0ha.top_2096
+    - 猫猫头-r1bv6bxh
+
+rules:
+  - GEOIP,LAN,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,🌍选择代理
